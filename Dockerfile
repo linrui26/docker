@@ -1,5 +1,6 @@
 FROM pytorch/pytorch:1.8.0-cuda11.1-cudnn8-devel
 
+RUN docker system prune -a
 RUN apt-get update || apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
 RUN pip install efficientnet_pytorch==0.7.1
