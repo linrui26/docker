@@ -1,6 +1,7 @@
 FROM pytorch/pytorch:1.8.0-cuda11.1-cudnn8-devel
-RUN apt-get update || apt-get update
-RUN apt-get install ffmpeg libsm6 libxext6  -y
+Run apt-get update
+Run apt -y --fix-broken install
+Run apt -y install libgl1-mesa-glx
 RUN pip install efficientnet_pytorch==0.7.1
 RUN pip install fvcore==0.1.5.post20220119
 RUN pip install lyft_dataset_sdk==0.0.8
