@@ -2,6 +2,11 @@ FROM nvidia/cuda:11.7.1-devel-ubuntu20.04
 
 ENV PYTHON_VERSION=3.9
 
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get install -y tzdata \
+    && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && dpkg-reconfigure --frontend noninteractive tzdata
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     software-properties-common \
