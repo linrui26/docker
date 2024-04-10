@@ -1,33 +1,31 @@
 FROM nvidia/cuda:11.7.1-devel-ubuntu20.04
 
-ENV PYTHON_VERSION=3.9
+# 安装基础包
+RUN apt update && \
+    apt install -y \
+        wget build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev \
+        libreadline-dev libffi-dev libsqlite3-dev libbz2-dev liblzma-dev && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN export DEBIAN_FRONTEND=noninteractive \
-    && apt-get update \
-    && apt-get install -y tzdata \
-    && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && dpkg-reconfigure --frontend noninteractive tzdata
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    software-properties-common \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /temp
 
-# 添加Debian的Python 3.9源并安装Python 3.9及pip
-RUN add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get install -y \
-        python${PYTHON_VERSION} \
-        python${PYTHON_VERSION}-dev \
-        python${PYTHON_VERSION}-distutils \
-        python${PYTHON_VERSION}-pip \
-    && rm -rf /var/lib/apt/lists/*
+# 下载python
+RUN wget https://www.python.org/ftp/python/3.9.10/Python-3.9.10.tgz && \
+    tar -xvf Python-3.9.10.tgz
 
-# 设置Python 3.9为默认Python版本
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1
-RUN update-alternatives --install /usr/bin/pip pip /usr/bin/pip${PYTHON_VERSION} 1
+# 编译&安装python
+RUN cd Python-3.9.10 && \
+    ./configure --enable-optimizations && \
+    make && \
+    make install
 
-# 安装其他必要的依赖
-RUN pip install --upgrade pip setuptools wheel
+WORKDIR /workspace
+
+RUN rm -r /temp && \
+    ln -s /usr/local/bin/python3 /usr/local/bin/python && \
+    ln -s /usr/local/bin/pip3 /usr/local/bin/pip
+
 
 # 安装PyTorch 1.13.1及相关库
 RUN pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
